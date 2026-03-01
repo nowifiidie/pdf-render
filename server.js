@@ -42,15 +42,27 @@ app.post("/render", async (req, res) => {
       ...(options || {})
     });
 
+    const pdfBytes = Buffer.isBuffer(pdf) ? pdf : Buffer.from(pdf);
+
+    res.status(200);
+
+
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", 'attachment; filename="dop.pdf"');
+    res.setHeader("Content-Disposition", 'inline; filename="dop.pdf"'); // or attachment
+    res.setHeader("Content-Length", pdfBytes.length);
+    res.setHeader("Cache-Control", "no-store");
+
 
     console.log("pdf type:", typeof pdf);
     console.log("isBuffer:", Buffer.isBuffer(pdf));
     console.log("constructor:", pdf?.constructor?.name);
     console.log("length:", pdf?.length ?? pdf?.byteLength);
     console.log("first 8 bytes:", Buffer.from(pdf).subarray(0, 8));
-    return res.status(200).send(pdf);
+
+
+    return res.end(pdfBytes);
+
+
 
   } catch (e) {
     console.error("Render error:", e);
