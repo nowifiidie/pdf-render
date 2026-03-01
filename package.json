@@ -1,0 +1,10 @@
+{
+  "name": "puppeteer-pdf-renderer",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.19.2",
+    "puppeteer-core": "^23.6.0"
+  }
+}
