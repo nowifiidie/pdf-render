@@ -25,6 +25,9 @@ app.post("/render", async (req, res) => {
     });
 
     const page = await browser.newPage();
+
+    page.setDefaultNavigationTimeout(15000);
+    page.setDefaultTimeout(15000);
     await page.setViewport({ width: 1240, height: 1754 });
 
     if (url) {
