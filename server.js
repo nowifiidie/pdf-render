@@ -28,9 +28,9 @@ app.post("/render", async (req, res) => {
     await page.setViewport({ width: 1240, height: 1754 });
 
     if (url) {
-      await page.goto(url, { waitUntil: "networkidle0" });
+      await page.goto(url, { waitUntil: "domcontentloaded" });
     } else {
-      await page.setContent(html, { waitUntil: "networkidle0" });
+      await page.setContent(html, { waitUntil: "domcontentloaded" });
     }
 
     const pdf = await page.pdf({
