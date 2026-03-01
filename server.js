@@ -48,6 +48,8 @@ app.post("/render", async (req, res) => {
     });
 
     res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", 'attachment; filename="dop.pdf"');
+    res.send(pdf);
     res.send(pdf);
   } catch (e) {
     console.error(e);
