@@ -44,6 +44,12 @@ app.post("/render", async (req, res) => {
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", 'attachment; filename="dop.pdf"');
+
+    console.log("pdf type:", typeof pdf);
+    console.log("isBuffer:", Buffer.isBuffer(pdf));
+    console.log("constructor:", pdf?.constructor?.name);
+    console.log("length:", pdf?.length ?? pdf?.byteLength);
+    console.log("first 8 bytes:", Buffer.from(pdf).subarray(0, 8));
     return res.status(200).send(pdf);
 
   } catch (e) {
@@ -53,7 +59,7 @@ app.post("/render", async (req, res) => {
     }
   } finally {
     if (browser) {
-      try { await browser.close(); } catch {}
+      try { await browser.close(); } catch { }
     }
   }
 });
