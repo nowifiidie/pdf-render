@@ -13,6 +13,7 @@ app.get("/health", (req, res) => {
 
 app.post("/render", async (req, res) => {
   const { html, url, options } = req.body || {};
+
   if (!html && !url) {
     return res.status(400).json({ error: "Provide html or url" });
   }
@@ -25,37 +26,35 @@ app.post("/render", async (req, res) => {
     });
 
     const page = await browser.newPage();
-
     page.setDefaultNavigationTimeout(15000);
     page.setDefaultTimeout(15000);
-    await page.setViewport({ width: 1240, height: 1754 });
 
     if (url) {
-      await page.goto(url, { waitUntil: "domcontentloaded" });
+      await page.goto(url, { waitUntil: "networkidle0" });
     } else {
-      await page.setContent(html, { waitUntil: "domcontentloaded" });
+      await page.setContent(html, { waitUntil: "networkidle0" });
     }
 
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: {
-        top: "14mm",
-        right: "14mm",
-        bottom: "14mm",
-        left: "14mm"
-      }
+      margin: { top: "14mm", right: "14mm", bottom: "14mm", left: "14mm" },
+      ...(options || {})
     });
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", 'attachment; filename="dop.pdf"');
-    res.send(pdf);
-    res.send(pdf);
+    return res.status(200).send(pdf);
+
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Render failed" });
+    console.error("Render error:", e);
+    if (!res.headersSent) {
+      return res.status(500).json({ error: "Render failed", message: String(e?.message || e) });
+    }
   } finally {
-    if (browser) await browser.close();
+    if (browser) {
+      try { await browser.close(); } catch {}
+    }
   }
 });
 
