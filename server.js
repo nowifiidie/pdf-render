@@ -12,7 +12,22 @@ app.get("/health", (req, res) => {
 });
 
 app.post("/render", async (req, res) => {
-  const { html, url, options } = req.body || {};
+  const { html, url, options, filename, policyNumber } = req.body || {};
+
+  // Decide the download filename, in priority order:
+  //   1. explicit "filename" in the POST body
+  //   2. "policyNumber" in the POST body  ->  esub-<policyNumber>.pdf
+  //   3. timestamped fallback so files are still distinguishable
+  const clean = (v) => String(v).replace(/[^a-zA-Z0-9._-]/g, "_");
+  let baseName;
+  if (filename) {
+    baseName = clean(filename);
+  } else if (policyNumber) {
+    baseName = "esub-" + clean(policyNumber);
+  } else {
+    baseName = `pdf-${Date.now()}`;
+  }
+  const outName = baseName.replace(/\.pdf$/i, "") + ".pdf";
 
   if (!html && !url) {
     return res.status(400).json({ error: "Provide html or url" });
@@ -48,7 +63,7 @@ app.post("/render", async (req, res) => {
 
 
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", 'inline; filename="dop.pdf"'); // or attachment
+    res.setHeader("Content-Disposition", `inline; filename="${outName}"`); // pass "filename" in body to set this
     res.setHeader("Content-Length", pdfBytes.length);
     res.setHeader("Cache-Control", "no-store");
 
